@@ -34,6 +34,9 @@ public class DestinationService {
             }
         }
             return list;
+    }
 
+    public List<DestinationEntity> getDestinationsList() {
+        return destinationsList;
     }
 }

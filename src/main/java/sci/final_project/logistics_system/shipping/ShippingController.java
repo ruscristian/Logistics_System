@@ -6,6 +6,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import sci.final_project.logistics_system.GlobalData;
+import sci.final_project.logistics_system.order.OrdersEntity;
+
+import java.util.List;
 
 
 @RestController
@@ -24,6 +27,11 @@ public class ShippingController {
     public String showDate(){
         return globalData.getCurrentDate().toString();
     }
+
+//    @GetMapping("get-orders")
+//    public List<OrdersEntity> get(){
+//        return shippingService.getCurrentDateOrders();
+//    }
 
     @PostMapping("/new-day")
     public void newDay(){

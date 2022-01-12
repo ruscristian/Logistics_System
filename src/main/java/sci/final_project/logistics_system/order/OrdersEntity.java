@@ -1,7 +1,10 @@
 package sci.final_project.logistics_system.order;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import lombok.*;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.Hibernate;
 import sci.final_project.logistics_system.destination.DestinationEntity;
 
@@ -23,13 +26,14 @@ public class OrdersEntity {
 
     @JsonBackReference
     @ManyToOne
-    private DestinationEntity destination;
+    private DestinationEntity destinationId;
 
     @Column(name = "delivery_date")
     private String deliveryDate;
 
     @Column(name = "status")
-    private StatusEnum status;
+    @Enumerated(EnumType.STRING)
+    private StatusEnum status = StatusEnum.NEW;
 
     @Column(name = "last_updated")
     private String lastUpdated;

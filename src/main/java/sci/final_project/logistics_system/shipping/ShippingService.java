@@ -7,9 +7,11 @@ import org.springframework.stereotype.Service;
 import sci.final_project.logistics_system.GlobalData;
 import sci.final_project.logistics_system.destination.DestinationEntity;
 import sci.final_project.logistics_system.destination.DestinationRepository;
+import sci.final_project.logistics_system.destination.DestinationService;
 import sci.final_project.logistics_system.order.OrdersEntity;
 import sci.final_project.logistics_system.order.OrdersRepository;
 
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,11 +23,14 @@ public class ShippingService {
 
     private final DestinationRepository destinationRepository;
     private final OrdersRepository ordersRepository;
+    private final DestinationService destinationService;
     private final GlobalData globalData;
 
-    public ShippingService(DestinationRepository destinationRepository, OrdersRepository ordersRepository, GlobalData globalData) {
+    public ShippingService(DestinationRepository destinationRepository, OrdersRepository ordersRepository,
+                           DestinationService destinationService, GlobalData globalData) {
         this.destinationRepository = destinationRepository;
         this.ordersRepository = ordersRepository;
+        this.destinationService = destinationService;
         this.globalData = globalData;
     }
 
@@ -53,14 +58,21 @@ public class ShippingService {
 
     Logger logger = LoggerFactory.getLogger(ShippingService.class);
 
+
     public void newDayMaker(){
         globalData.setCurrentDate(globalData.getCurrentDate().plusDays(1));
-        List<OrdersEntity> ordersForCurrentDate = new ArrayList<>();
         //TODO get orders for current date
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        List<OrdersEntity> currentDateOrdersList =
+                new ArrayList<>(ordersRepository.findByDeliveryDate(globalData.getCurrentDate().format(dateTimeFormatter)));
 
         //map orders to destinations
         Map<DestinationEntity, List<OrdersEntity>> ordersByDestination = new HashMap<>();
         //TODO fill map
+        for(DestinationEntity destinationEntity: destinationService.getDestinationsList()){
+            ordersByDestination.put(destinationEntity,
+                    new ArrayList<>(ordersRepository.findByDestinationId(destinationEntity.getId())));
+        }
 
         for (DestinationEntity destination : ordersByDestination.keySet()) {
             threadCourier(destination, ordersByDestination.get(destination));
@@ -71,8 +83,4 @@ public class ShippingService {
     public void threadCourier(DestinationEntity destination, List<OrdersEntity> orders){
 
     }
-
-
-
-
 }

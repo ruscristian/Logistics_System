@@ -26,12 +26,11 @@ public class OrdersEntity {
 
     @JsonBackReference
     @ManyToOne
-    private DestinationEntity destinationId;
+    private DestinationEntity destination;
 
     @Column(name = "delivery_date")
     private String deliveryDate;
 
-    //nu reusesc sa setez statusul ca fiind new
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private StatusEnum status = StatusEnum.NEW;

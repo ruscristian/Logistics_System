@@ -67,31 +67,18 @@ public class ShippingService {
 
     }
 
+    public void startingThreads() {
 
-//    private List<OrdersEntity> currentDateOrdersList =
-//            new ArrayList<>(ordersRepository.findByDeliveryDate(globalData.getCurrentDate().format(dateTimeFormatter)));
+        Map<DestinationEntity, List<OrdersEntity>> ordersByDestination = new HashMap<>();
 
-    private Map<DestinationEntity, List<OrdersEntity>> ordersByDestination = new HashMap<>();
-
-
-
-    private void startingThreads() {
-        // populating ordersByDestination_MAP
-        //TODO sa facem lista de destinatii pe ziua respectiva(nu sunt sigur daca ar fi mai bine un join in baza de date decat sa facem un for )
-//        List<String> itemsByKey = ordersByDestination.computeIfPresent();
-        ordersByDestination.clear();
-        for(DestinationEntity destinationEntity: destinationRepository.findAll()){
-
-            ordersByDestination.put(destinationEntity,
-                    //aici cred ca ar trebui facuta conditia daca lista sau cheia exista sa ii facem doar update ()in caz ca o sa avem facut endpointul add-order, delete, etc.
-                    new ArrayList<>(ordersRepository.findByDestinationIdAndDeliveryDate(
-                                                           destinationEntity.getId(),
-                                                           globalData.getCurrentDate().format(dateTimeFormatter))));
-        }
+        ordersRepository.findByDeliveryDate(globalData.getCurrentDate().format(dateTimeFormatter)).forEach(ordersEntity -> {
+            ordersByDestination.computeIfAbsent(ordersEntity.getDestination(), destination -> new ArrayList<>());
+            ordersByDestination.get(ordersEntity.getDestination()).add(ordersEntity);
+        });
 
         for (DestinationEntity destination : ordersByDestination.keySet()) {
             threadCourier(destination, ordersByDestination.get(destination));
-            logger.info("delivering on " + destination.getName() + "on courier" + Thread.currentThread().getName());
+            logger.info("delivering on " + destination.getName() + "on courier " + Thread.currentThread().getName());
         }
     }
 
@@ -99,15 +86,16 @@ public class ShippingService {
     public void threadCourier(DestinationEntity destination, List<OrdersEntity> orders){
 
         for(OrdersEntity orderStatus: orders){
-            if(!orderStatus.getStatus().equals(StatusEnum.NEW)){}
-            else orderStatus.setStatus(StatusEnum.DELIVERING);
+            if(orderStatus.getStatus().equals(StatusEnum.NEW)){
+                orderStatus.setStatus(StatusEnum.DELIVERING);
+            }
         }
+
         try {
             Thread.sleep(destination.getDistance()*1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
 
         for(OrdersEntity orderStatus: orders){
 
@@ -116,7 +104,7 @@ public class ShippingService {
             }
             else {
                 orderStatus.setStatus(StatusEnum.DELIVERED);
-                globalData.setProfit(globalData.getProfit() + destination.getDistance());
+                globalData.increaseProfit(destination.getDistance());
             }
         }
     }

@@ -13,4 +13,7 @@ public class GlobalData {
     private long profit;
     private LocalDate currentDate = LocalDate.of(2021, 12, 15);
 
+    public synchronized void increaseProfit(long amount) {
+        profit += amount;
+    }
 }

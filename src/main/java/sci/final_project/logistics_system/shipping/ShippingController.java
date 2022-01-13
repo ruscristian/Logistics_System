@@ -28,6 +28,10 @@ public class ShippingController {
         return globalData.getCurrentDate().toString();
     }
 
+    @PostMapping("/start-shipping")
+    public void startShipping(){
+        shippingService.startingThreads();
+    }
 
     @PostMapping("/new-day")
     public void newDay(){

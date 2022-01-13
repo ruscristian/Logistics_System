@@ -1,10 +1,7 @@
 package sci.final_project.logistics_system.destination;
 
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -13,17 +10,35 @@ import java.util.List;
 public class DestinationController {
 
     final DestinationService destinationService;
+    //nu sunt sigur daca e corect sa folosesc repository-ul
+    final DestinationRepository destinationRepository;
 
-    public DestinationController(DestinationService destinationService) {
+    public DestinationController(DestinationService destinationService, DestinationRepository destinationRepository) {
         this.destinationService = destinationService;
+        this.destinationRepository = destinationRepository;
     }
 
     @GetMapping("/get")
-    public List<DestinationEntity> getDestination(@RequestParam(required = false) Long destinationId) {
-        if (destinationId == null) {
-            return destinationService.getAllDestinations();
-        } else {
-            return destinationService.getDestination(destinationId);
-        }
+    public List<DestinationEntity> getDestination() {
+        return destinationService.getAllDestinations();
+    }
+    @GetMapping("/get/{destinationId}")
+    public List<DestinationEntity> getDestinationById(@PathVariable Long destinationId){
+        return destinationService.getDestination(destinationId);
+    }
+
+    @PostMapping("/add")
+    public DestinationEntity addDestination(@RequestBody DestinationEntity destination){
+        return destinationRepository.save(destination);
+    }
+
+    @PutMapping("/update")
+    public DestinationService updateDestinationInfo(){
+        return null;
+    }
+
+    @DeleteMapping("/delete/{destinationId}")
+    public DestinationEntity deleteDestination(@PathVariable Long destinationId){
+        return null;
     }
 }

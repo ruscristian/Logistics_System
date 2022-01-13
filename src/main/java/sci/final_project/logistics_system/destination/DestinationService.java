@@ -9,20 +9,17 @@ import java.util.List;
 @Service
 public class DestinationService {
 
-    public DestinationService(DestinationRepository destinationRepository, List<DestinationEntity> destinationsList) {
+    public DestinationService(DestinationRepository destinationRepository) {
         this.destinationRepository = destinationRepository;
-        this.destinationsList = getAllDestinations();
     }
 
     final DestinationRepository destinationRepository;
-    final List<DestinationEntity> destinationsList;
+
 
 
     public List<DestinationEntity> getAllDestinations() {
         List<DestinationEntity> list = new ArrayList<>();
-        for (DestinationEntity destinationEntity : destinationRepository.findAll()) {
-            list.add(destinationEntity);
-        }
+        list.addAll(destinationRepository.findAll());
         return list;
     }
 
@@ -33,10 +30,9 @@ public class DestinationService {
                 list.add(destinationEntity);
             }
         }
+        //aici cred ca merge si metoda findById din repository
+
             return list;
     }
 
-    public List<DestinationEntity> getDestinationsList() {
-        return destinationsList;
-    }
 }

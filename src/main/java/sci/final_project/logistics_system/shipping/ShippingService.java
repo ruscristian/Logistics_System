@@ -7,9 +7,9 @@ import org.springframework.stereotype.Service;
 import sci.final_project.logistics_system.GlobalData;
 import sci.final_project.logistics_system.destination.DestinationEntity;
 import sci.final_project.logistics_system.destination.DestinationRepository;
-import sci.final_project.logistics_system.destination.DestinationService;
 import sci.final_project.logistics_system.order.OrdersEntity;
 import sci.final_project.logistics_system.order.OrdersRepository;
+import sci.final_project.logistics_system.order.StatusEnum;
 
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -21,16 +21,18 @@ import java.util.Map;
 @Service
 public class ShippingService {
 
+    private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
     private final DestinationRepository destinationRepository;
     private final OrdersRepository ordersRepository;
-    private final DestinationService destinationService;
-    private final GlobalData globalData;
+    private GlobalData globalData;
+
+    Logger logger = LoggerFactory.getLogger(ShippingService.class);
 
     public ShippingService(DestinationRepository destinationRepository, OrdersRepository ordersRepository,
-                           DestinationService destinationService, GlobalData globalData) {
+                            GlobalData globalData) {
         this.destinationRepository = destinationRepository;
         this.ordersRepository = ordersRepository;
-        this.destinationService = destinationService;
+
         this.globalData = globalData;
     }
 
@@ -51,36 +53,68 @@ public class ShippingService {
     //     catre executor care va face livrarile la destinatia respectiva
     //     (log + console: “Starting deliveries for Ploiesti on Thread 0 for 25 km”). (hint: folositi @Async)
 
-    // executor
 
-    //     Se va folosi un executor cu maximum 4 threaduri active
-    //     si un queue size de 100 de taskuri pentru a gestiona livrarile.
 
-    Logger logger = LoggerFactory.getLogger(ShippingService.class);
 
 
     public void newDayMaker(){
         globalData.setCurrentDate(globalData.getCurrentDate().plusDays(1));
-        //TODO get orders for current date
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-        List<OrdersEntity> currentDateOrdersList =
-                new ArrayList<>(ordersRepository.findByDeliveryDate(globalData.getCurrentDate().format(dateTimeFormatter)));
+//        for(OrdersEntity orderUpdatingStatus: currentDateOrdersList){
+//            orderUpdatingStatus.setStatus(StatusEnum.NEW);
+//        }
 
-        //map orders to destinations
-        Map<DestinationEntity, List<OrdersEntity>> ordersByDestination = new HashMap<>();
-        //TODO fill map
-        for(DestinationEntity destinationEntity: destinationService.getDestinationsList()){
+        logger.info("New day starting : " + globalData.getCurrentDate().format(dateTimeFormatter));
+
+    }
+
+
+//    private List<OrdersEntity> currentDateOrdersList =
+//            new ArrayList<>(ordersRepository.findByDeliveryDate(globalData.getCurrentDate().format(dateTimeFormatter)));
+
+    private Map<DestinationEntity, List<OrdersEntity>> ordersByDestination = new HashMap<>();
+
+
+
+    private void startingThreads() {
+        // populating ordersByDestination_MAP
+        //TODO sa facem lista de destinatii pe ziua respectiva(nu sunt sigur daca ar fi mai bine un join in baza de date decat sa facem un for )
+        for(DestinationEntity destinationEntity: destinationRepository.findAll()){
             ordersByDestination.put(destinationEntity,
-                    new ArrayList<>(ordersRepository.findByDestinationId(destinationEntity.getId())));
+                    //aici cred ca ar trebui facuta conditia daca lista sau cheia exista sa ii facem doar update ()in caz ca o sa avem facut endpointul add-order, delete, etc.
+                    new ArrayList<>(ordersRepository.findByDestinationIdAndDeliveryDate(
+                                                           destinationEntity.getId(),
+                                                           globalData.getCurrentDate().format(dateTimeFormatter))));
         }
 
         for (DestinationEntity destination : ordersByDestination.keySet()) {
             threadCourier(destination, ordersByDestination.get(destination));
+            logger.info("delivering on " + destination.getName() + "on courier" + Thread.currentThread().getName());
         }
     }
 
     @Async(value = "taskExecutor")
     public void threadCourier(DestinationEntity destination, List<OrdersEntity> orders){
 
+        for(OrdersEntity orderStatus: orders){
+            if(orderStatus.getStatus().equals(StatusEnum.NEW)){}
+            else orderStatus.setStatus(StatusEnum.DELIVERING);
+        }
+        try {
+            Thread.sleep(destination.getDistance()*1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+
+        for(OrdersEntity orderStatus: orders){
+
+            if(!orderStatus.getStatus().equals(StatusEnum.DELIVERING)){
+                logger.info("The order has been canceled or has been delivered or is new");
+            }
+            else {
+                orderStatus.setStatus(StatusEnum.DELIVERED);
+                globalData.setProfit(globalData.getProfit() + destination.getDistance());
+            }
+        }
     }
 }

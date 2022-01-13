@@ -10,21 +10,11 @@ import java.util.*;
 public class OrdersService {
 
     private final OrdersRepository ordersRepository;
-    private final List<OrdersEntity> ordersEntityList;
 
 
-    public OrdersService(OrdersRepository ordersRepository, List<OrdersEntity> ordersEntityList) {
+    public OrdersService(OrdersRepository ordersRepository) {
         this.ordersRepository = ordersRepository;
-        this.ordersEntityList = ordersEntityList;
     }
 
-
-    public List<OrdersEntity> getAllOrders() {
-        List<OrdersEntity> list = new ArrayList<>();
-        for (OrdersEntity ordersEntity : ordersRepository.findAll()) {
-            list.add(ordersEntity);
-        }
-        return list;
-    }
 
 }

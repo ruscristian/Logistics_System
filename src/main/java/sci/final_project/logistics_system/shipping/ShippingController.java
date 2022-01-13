@@ -28,10 +28,6 @@ public class ShippingController {
         return globalData.getCurrentDate().toString();
     }
 
-//    @GetMapping("get-orders")
-//    public List<OrdersEntity> get(){
-//        return shippingService.getCurrentDateOrders();
-//    }
 
     @PostMapping("/new-day")
     public void newDay(){

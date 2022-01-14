@@ -1,7 +1,9 @@
 package sci.final_project.logistics_system.order;
 
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import sci.final_project.logistics_system.destination.DestinationEntity;
 import sci.final_project.logistics_system.destination.DestinationRepository;
 
 import java.util.List;
@@ -24,12 +26,11 @@ public class OrderController {
 
     @GetMapping("/get")
     public List<OrdersEntity> getOrders(){
-
         return ordersRepository.findAll();
     }
 
     @PostMapping("/add")
-    public OrdersEntity addOrder(@RequestBody OrdersEntity payload, String destinationName) throws IllegalArgumentException {
-        return ordersService.addOrder(payload, destinationName, destinationRepository);
+    public ResponseEntity<OrdersEntity> addOrder(@RequestBody OrdersEntity payload) throws IllegalArgumentException {
+        return ordersService.addOrder(payload, destinationRepository);
     }
 }

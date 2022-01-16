@@ -1,7 +1,10 @@
 package sci.final_project.logistics_system.order;
 
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import sci.final_project.logistics_system.GlobalData;
+import sci.final_project.logistics_system.destination.DestinationRepository;
 
 import java.util.List;
 
@@ -12,17 +15,20 @@ public class OrderController {
 
  private final OrdersService ordersService;
  private final OrdersRepository ordersRepository;
+ private final DestinationRepository destinationRepository;
+ private final GlobalData globalData;
 
-    public OrderController(OrdersService ordersService, OrdersRepository ordersRepository, DestinationRepository destinationRepository, GlobalData globalData) {
+
+    public OrderController(OrdersService ordersService, OrdersRepository ordersRepository, DestinationRepository destinationRepository, GlobalData globalData, DestinationRepository destinationRepository1, GlobalData globalData1) {
         this.ordersService = ordersService;
         this.ordersRepository = ordersRepository;
+        this.destinationRepository = destinationRepository1;
+        this.globalData = globalData1;
     }
 
 
     @GetMapping("/get")
     public List<OrdersEntity> getOrders(){
-
-//        return ordersService.getAllOrders();
         return ordersRepository.findAll();
     }
 

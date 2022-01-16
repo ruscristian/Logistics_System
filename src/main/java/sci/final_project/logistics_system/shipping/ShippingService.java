@@ -53,13 +53,13 @@ public class ShippingService {
         for (DestinationEntity destination : ordersByDestination.keySet()) {
             currentDateDestinationList.add((destination).getName());
         }
+        logger.info("New day starting : " + globalData.getCurrentDate().format(dateTimeFormatter));
+        logger.info("Today we will be delivering to " + currentDateDestinationList);
 
         for (DestinationEntity destination : ordersByDestination.keySet()) {
             courierContainer.threadCourier(destination, ordersByDestination.get(destination));
         }
 
-        logger.info("New day starting : " + globalData.getCurrentDate().format(dateTimeFormatter));
-        logger.info("Today we will be delivering to " + currentDateDestinationList);
 
     }
 

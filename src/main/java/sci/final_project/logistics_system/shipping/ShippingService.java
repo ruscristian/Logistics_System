@@ -10,10 +10,7 @@ import sci.final_project.logistics_system.order.OrdersEntity;
 import sci.final_project.logistics_system.order.OrdersRepository;
 
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 @Service
@@ -36,39 +33,15 @@ public class ShippingService {
         this.courierContainer = courierContainer;
     }
 
-    // New day maker
 
-    //    Avanseaza data curenta a aplicatiei cu o zi. La pornirea aplicatiei,
-    //    data curenta a aplicatiei va fi 15-12-2021. (log + console: “New day starting : 15-12-2021”)
-
-    //TODO current day shipping status
-
-    //   La inceputul fiecarei zile, toate livrarile din ziua respectiva vor fi grupate pe baza destinatiei
-    //   si vor fi marcate ca fiind “In curs de livrare”.
-    //   (log + console: “Today we will be delivering to Ploiesti, Pitesti, Craiova”)
-
-    //TODO thread courier
-
-    //     Pentru fiecare destinatie distincta se va submite cate un task
-    //     catre executor care va face livrarile la destinatia respectiva
-    //     (log + console: “Starting deliveries for Ploiesti on Thread 0 for 25 km”). (hint: folositi @Async)
-
-
-
-
-
-    public void newDayMaker(){
+    public void newDayMaker() {
         globalData.setCurrentDate(globalData.getCurrentDate().plusDays(1));
-//        for(OrdersEntity orderUpdatingStatus: currentDateOrdersList){
-//            orderUpdatingStatus.setStatus(StatusEnum.NEW);
-//        }
-
-        logger.info("New day starting : " + globalData.getCurrentDate().format(dateTimeFormatter));
-
+        startingThreads();
     }
 
     public void startingThreads() {
 
+        List<String> currentDateDestinationList = new ArrayList<>();
         Map<DestinationEntity, List<OrdersEntity>> ordersByDestination = new HashMap<>();
 
         ordersRepository.findByDeliveryDate(globalData.getCurrentDate().format(dateTimeFormatter)).forEach(ordersEntity -> {
@@ -78,9 +51,19 @@ public class ShippingService {
         });
 
         for (DestinationEntity destination : ordersByDestination.keySet()) {
+            currentDateDestinationList.add((destination).getName());
+        }
+
+        for (DestinationEntity destination : ordersByDestination.keySet()) {
             courierContainer.threadCourier(destination, ordersByDestination.get(destination));
         }
+
+        logger.info("New day starting : " + globalData.getCurrentDate().format(dateTimeFormatter));
+        logger.info("Today we will be delivering to " + currentDateDestinationList);
+
     }
 
-
 }
+
+
+

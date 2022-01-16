@@ -28,14 +28,15 @@ public class CourierContainer {
 
     @Async(value = "taskExecutor")
     public void threadCourier(DestinationEntity destination, List<OrdersEntity> orders){
-        logger.info("delivering on " + destination.getName() + " on courier " + Thread.currentThread().getName());
+        logger.info("STARTING deliveries for " + destination.getName() + " on " +
+                          Thread.currentThread().getName() + " for " + destination.getDistance() + "km");
+
         for(OrdersEntity orderStatus: orders){
             if(orderStatus.getStatus().equals(StatusEnum.NEW)){
                 orderStatus.setStatus(StatusEnum.DELIVERING);
                 ordersRepository.save(orderStatus);
             }
         }
-
         try {
             Thread.sleep(destination.getDistance()*1000);
         } catch (InterruptedException e) {
@@ -54,7 +55,8 @@ public class CourierContainer {
             }
         }
         ordersRepository.saveAll(orders);
-        logger.info("delivered on " + destination.getName() + " on courier " + Thread.currentThread().getName());
+        logger.info("DELIVERED in " + destination.getName() + " on " +
+                Thread.currentThread().getName());
 
     }
 

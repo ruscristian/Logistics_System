@@ -5,7 +5,7 @@ public enum StatusEnum {
     NEW,
     DELIVERING,
     DELIVERED,
-    CANCELED
+    CANCELLED
 
 }
 

@@ -16,14 +16,10 @@ public class OrdersService {
         this.ordersRepository = ordersRepository;
     }
 
-    public OrdersEntity addOrder(OrdersEntity payload, DestinationEntity destination) {
-        OrdersEntity newOrder = payload;
-//        newOrder.setStatus(StatusEnum.NEW);
-//        newOrder.setLastUpdated("15-12-2021");
-        newOrder.setDestination(destination);
-        ordersRepository.save(newOrder);
-        return newOrder;
+    public String computeLastUpdated() {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        LocalDate localDate = LocalDate.now();
+        return (dtf.format(localDate));
     }
-
 
 }

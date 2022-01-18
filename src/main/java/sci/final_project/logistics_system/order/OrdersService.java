@@ -39,31 +39,29 @@ public class OrdersService {
             logger.info("Date is older than today.");
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } else {
-            OrdersEntity newOrder = payload;
-            newOrder.setStatus(StatusEnum.NEW);
-            newOrder.setLastUpdated(computeLastUpdated());
+            payload.setStatus(StatusEnum.NEW);
+            payload.setLastUpdated(computeLastUpdated());
             List<DestinationEntity> destinations = destination.findAll();
             for (DestinationEntity destination1 : destinations) {
                 if (destination1.getName().equals(payload.getDestination().getName()))
-                    newOrder.setDestination(destination1);
+                    payload.setDestination(destination1);
             }
-            ordersRepository.save(newOrder);
-            logger.info("New order added: " + newOrder);
-            return new ResponseEntity<>(newOrder, HttpStatus.CREATED);
+            ordersRepository.save(payload);
+            logger.info("New order added: " + payload);
+            return new ResponseEntity<>(payload, HttpStatus.CREATED);
         }
     }
 
     public String computeLastUpdated() {
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+
         LocalDate localDate = LocalDate.now();
-        return (dtf.format(localDate));
+        return (globalData.getDateTimeFormatter().format(localDate));
     }
 
     public boolean compareDates(String deliveryDate) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-        String date = deliveryDate;
-        LocalDate localDate = LocalDate.parse(date, formatter);
-        return (globalData.getCurrentDate().isAfter(localDate));
+
+        LocalDate localDate = LocalDate.parse(deliveryDate, globalData.getDateTimeFormatter());
+        return globalData.getCurrentDate().isAfter(localDate);
     }
 
     public ResponseEntity<OrdersEntity> cancelOrder(OrdersEntity payload) {
@@ -89,37 +87,59 @@ public class OrdersService {
     }
 
     public List<OrdersEntity> findOrdersByCriteria(String destination, String date, GlobalData globalData) {
-        List<DestinationEntity> destinations = destinationRepository.findAll();
-        List<OrdersEntity> resultedList = ordersRepository.findAll();
-        boolean orderFound = false;
 
-        if (destination != null && date != null) {
+        if (date == null) {
+            date = globalData.getCurrentDate().format(globalData.getDateTimeFormatter());
+        }
+
+        if (destination != null) {
+            List<DestinationEntity> destinations = destinationRepository.findAll();
             for (DestinationEntity destination1 : destinations) {
                 if (destination1.getName().equals(destination)) {
-                    orderFound = true;
                     logger.info("Orders list for " + destination + " on " + date + " has been generated.");
-                    return resultedList = ordersRepository.findByDestinationIdAndDeliveryDate(destination1.getId(), date);
-
+                    return ordersRepository.findByDestinationIdAndDeliveryDate(destination1.getId(), date);
+                }
+                else {
+                    //log si http response
+                    System.out.println("Destination does not exist");
                 }
             }
-        }
-        if (date == null && destination != null) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-            String formattedString = globalData.getCurrentDate().format(formatter);
-            for (DestinationEntity destination1 : destinations) {
-                if (destination1.getName().equals(destination)) {
-                    logger.info("Orders list for " + destination + " on current application date has been generated.");
-                  return resultedList = ordersRepository.findByDestinationIdAndDeliveryDate(destination1.getId(), formattedString);
-                }
-            }
-        }
-        if (destination == null && date != null) {
+        } else {
             logger.info("Found orders by delivery date.");
-           return resultedList = ordersRepository.findByDeliveryDate(date);
+            return ordersRepository.findByDeliveryDate(date);
         }
-
-        logger.info("Destination does not exist. Full orders list returned.");
-        return resultedList = ordersRepository.findAll();
-
+        return ordersRepository.findAll();
     }
+
+//    public List<OrdersEntity> findOrdersByCriteria(String destination, String date, GlobalData globalData) {
+//        List<DestinationEntity> destinations = destinationRepository.findAll();
+//
+//        if (destination != null && date != null) {
+//            for (DestinationEntity destination1 : destinations) {
+//                if (destination1.getName().equals(destination)) {
+//                    return ordersRepository.findByDestinationIdAndDeliveryDate(destination1.getId(), date);
+//                }
+//                else {
+//                    //log si http response
+//                    System.out.println("Destination does not exist");
+//                }
+//            }
+//        }
+//        if (date == null && destination != null) {
+//            String formattedString = globalData.getCurrentDate().format(globalData.getDateTimeFormatter());
+//            for (DestinationEntity destination1 : destinations) {
+//                if (destination1.getName().equals(destination)) {
+//                    return ordersRepository.findByDestinationIdAndDeliveryDate(destination1.getId(), formattedString);
+//                }
+//                else {
+//                    //log si http response
+//                    System.out.println("Destination does not exist");
+//                }
+//            }
+//        }
+//        if (destination == null && date != null) {
+//            return ordersRepository.findByDeliveryDate(date);
+//        }
+//        return ordersRepository.findAll();
+//    }
 }

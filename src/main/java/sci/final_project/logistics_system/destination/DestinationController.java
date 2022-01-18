@@ -4,27 +4,27 @@ package sci.final_project.logistics_system.destination;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/destinations")
 public class DestinationController {
 
-    final DestinationService destinationService;
-    //nu sunt sigur daca e corect sa folosesc repository-ul
-    final DestinationRepository destinationRepository;
+    private final DestinationRepository destinationRepository;
 
-    public DestinationController(DestinationService destinationService, DestinationRepository destinationRepository) {
-        this.destinationService = destinationService;
+    public DestinationController( DestinationRepository destinationRepository) {
         this.destinationRepository = destinationRepository;
     }
 
     @GetMapping("/get")
     public List<DestinationEntity> getDestination() {
-        return destinationService.getAllDestinations();
+        return destinationRepository.findAll();
     }
+
     @GetMapping("/get/{destinationId}")
-    public List<DestinationEntity> getDestinationById(@PathVariable Long destinationId){
-        return destinationService.getDestination(destinationId);
+    public Optional<DestinationEntity> getDestinationById(@PathVariable Long destinationId){
+        return destinationRepository.findById(destinationId);
     }
 
     @PostMapping("/add")
@@ -33,12 +33,12 @@ public class DestinationController {
     }
 
     @PutMapping("/update")
-    public DestinationService updateDestinationInfo(){
-        return null;
+    public DestinationEntity updateDestinationInfo(@RequestBody DestinationEntity destination){
+        return destinationRepository.save(destination);
     }
 
     @DeleteMapping("/delete/{destinationId}")
-    public DestinationEntity deleteDestination(@PathVariable Long destinationId){
-        return null;
+    public void deleteDestination(@PathVariable Long destinationId){
+        destinationRepository.deleteById(destinationId);
     }
 }

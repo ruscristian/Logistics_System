@@ -10,11 +10,9 @@ import java.util.Optional;
 @RequestMapping("/destinations")
 public class DestinationController {
 
-    final DestinationService destinationService;
-    final DestinationRepository destinationRepository;
+    private final DestinationRepository destinationRepository;
 
-    public DestinationController(DestinationService destinationService, DestinationRepository destinationRepository) {
-        this.destinationService = destinationService;
+    public DestinationController( DestinationRepository destinationRepository) {
         this.destinationRepository = destinationRepository;
     }
 
@@ -35,7 +33,6 @@ public class DestinationController {
 
     @PutMapping("/update")
     public DestinationEntity updateDestinationInfo(@RequestBody DestinationEntity destination){
-
         return destinationRepository.save(destination);
     }
 

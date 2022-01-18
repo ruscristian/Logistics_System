@@ -19,11 +19,11 @@ public class OrderController {
  private final GlobalData globalData;
 
 
-    public OrderController(OrdersService ordersService, OrdersRepository ordersRepository, DestinationRepository destinationRepository, GlobalData globalData, DestinationRepository destinationRepository1, GlobalData globalData1) {
+    public OrderController(OrdersService ordersService, OrdersRepository ordersRepository, DestinationRepository destinationRepository, GlobalData globalData) {
         this.ordersService = ordersService;
         this.ordersRepository = ordersRepository;
-        this.destinationRepository = destinationRepository1;
-        this.globalData = globalData1;
+        this.destinationRepository = destinationRepository;
+        this.globalData = globalData;
     }
 
 

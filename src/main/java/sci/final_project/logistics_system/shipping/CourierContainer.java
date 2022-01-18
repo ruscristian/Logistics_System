@@ -10,7 +10,11 @@ import sci.final_project.logistics_system.order.OrdersEntity;
 import sci.final_project.logistics_system.order.OrdersRepository;
 import sci.final_project.logistics_system.order.StatusEnum;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
+
 
 @Component
 public class CourierContainer {
@@ -26,35 +30,47 @@ public class CourierContainer {
     }
 
 
-    @Async(value = "taskExecutor")
-    public void threadCourier(DestinationEntity destination, List<OrdersEntity> orders){
+    @Async("taskExecutor")
+    public void threadCourier(DestinationEntity destination, List<OrdersEntity> orders) {
         logger.info("STARTING deliveries for " + destination.getName() + " on " +
-                          Thread.currentThread().getName() + " for " + destination.getDistance() + "km");
+                Thread.currentThread().getName() + " for " + destination.getDistance() + "km");
 
-        for(OrdersEntity orderStatus: orders){
-            if(orderStatus.getStatus().equals(StatusEnum.NEW)){
+        List<Long> ordersIdList = new ArrayList<>();
+        orders.forEach(ordersEntity -> ordersIdList.add(ordersEntity.getId()));
+
+        List<OrdersEntity> refreshedOrders1 = ordersRepository.findAllById(ordersIdList);
+
+        for (OrdersEntity orderStatus : refreshedOrders1) {
+            if (orderStatus.getStatus().equals(StatusEnum.NEW)) {
                 orderStatus.setStatus(StatusEnum.DELIVERING);
+                orderStatus.setLastUpdated(LocalDate.now().format(globalData.getDateTimeFormatter()));
                 ordersRepository.save(orderStatus);
             }
+            else  { logger.info("The order with the idNr:" +"\""+ orderStatus.getId() +"\""+
+                    " has been canceled or has been delivered or is new."); }
         }
         try {
-            Thread.sleep(destination.getDistance()*1000);
+            Thread.sleep(destination.getDistance() * 1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
-        for(OrdersEntity orderStatus: orders){
 
-            if(!orderStatus.getStatus().equals(StatusEnum.DELIVERING)){
+        List<OrdersEntity> refreshedOrders = ordersRepository.findAllById(ordersIdList);
+
+        for (OrdersEntity orderStatus : refreshedOrders) {
+
+            if (orderStatus.getStatus().equals(StatusEnum.CANCELLED) ||
+                    orderStatus.getStatus().equals(StatusEnum.DELIVERED) ||
+                    orderStatus.getStatus().equals(StatusEnum.NEW)) {
                 logger.info("The order has been canceled or has been delivered or is new");
-            }
-            else {
+            } else {
                 orderStatus.setStatus(StatusEnum.DELIVERED);
-
+                orderStatus.setLastUpdated(LocalDate.now().format(globalData.getDateTimeFormatter()));
                 globalData.increaseProfit(destination.getDistance());
             }
         }
-        ordersRepository.saveAll(orders);
+        ordersRepository.saveAll(refreshedOrders);
         logger.info("DELIVERED in " + destination.getName() + " on " +
                 Thread.currentThread().getName());
 

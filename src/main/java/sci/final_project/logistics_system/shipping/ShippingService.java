@@ -33,7 +33,6 @@ public class ShippingService {
         this.courierContainer = courierContainer;
     }
 
-
     public void newDayMaker() {
         globalData.setCurrentDate(globalData.getCurrentDate().plusDays(1));
         startingThreads();

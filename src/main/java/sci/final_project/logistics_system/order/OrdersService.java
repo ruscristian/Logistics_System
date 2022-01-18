@@ -1,6 +1,5 @@
 package sci.final_project.logistics_system.order;
 
-import org.aspectj.weaver.ast.Or;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -9,14 +8,9 @@ import org.springframework.stereotype.Service;
 import sci.final_project.logistics_system.GlobalData;
 import sci.final_project.logistics_system.destination.DestinationEntity;
 import sci.final_project.logistics_system.destination.DestinationRepository;
-import sci.final_project.logistics_system.shipping.ShippingService;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
 
 
 @Service

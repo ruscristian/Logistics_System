@@ -22,10 +22,10 @@ public class OrdersService {
 
     Logger logger = LoggerFactory.getLogger(OrdersService.class);
 
-    public OrdersService(OrdersRepository ordersRepository, GlobalData globalData, DestinationRepository destinationRepository, DestinationRepository destinationRepository1) {
+    public OrdersService(OrdersRepository ordersRepository, GlobalData globalData, DestinationRepository destinationRepository) {
         this.ordersRepository = ordersRepository;
         this.globalData = globalData;
-        this.destinationRepository = destinationRepository1;
+        this.destinationRepository = destinationRepository;
     }
 
     public ResponseEntity<OrdersEntity> addOrder(OrdersEntity payload, DestinationRepository destination) {
@@ -87,53 +87,21 @@ public class OrdersService {
         }
 
         if (destination != null) {
-            List<DestinationEntity> destinations = destinationRepository.findAll();
-            for (DestinationEntity destination1 : destinations) {
-                if (destination1.getName().equals(destination)) {
-                    logger.info("Orders list for " + destination + " on " + date + " has been generated.");
-                    return ordersRepository.findByDestinationIdAndDeliveryDate(destination1.getId(), date);
-                }
-                else {
-                    //log si http response
-                    System.out.println("Destination does not exist");
-                }
+            DestinationEntity destinationToSearch = destinationRepository.findByName(destination);
+            if (destinationToSearch != null) {
+                logger.info("Orders list for " + destination + " on " + date + " has been generated.");
+                return ordersRepository.findByDestinationIdAndDeliveryDate(destinationToSearch.getId(), date);
+            } else {
+                logger.info("Destination does not exist. Full order list returned.");
+                return ordersRepository.findAll();
             }
+
         } else {
             logger.info("Found orders by delivery date.");
             return ordersRepository.findByDeliveryDate(date);
         }
-        return ordersRepository.findAll();
+
     }
 
-//    public List<OrdersEntity> findOrdersByCriteria(String destination, String date, GlobalData globalData) {
-//        List<DestinationEntity> destinations = destinationRepository.findAll();
-//
-//        if (destination != null && date != null) {
-//            for (DestinationEntity destination1 : destinations) {
-//                if (destination1.getName().equals(destination)) {
-//                    return ordersRepository.findByDestinationIdAndDeliveryDate(destination1.getId(), date);
-//                }
-//                else {
-//                    //log si http response
-//                    System.out.println("Destination does not exist");
-//                }
-//            }
-//        }
-//        if (date == null && destination != null) {
-//            String formattedString = globalData.getCurrentDate().format(globalData.getDateTimeFormatter());
-//            for (DestinationEntity destination1 : destinations) {
-//                if (destination1.getName().equals(destination)) {
-//                    return ordersRepository.findByDestinationIdAndDeliveryDate(destination1.getId(), formattedString);
-//                }
-//                else {
-//                    //log si http response
-//                    System.out.println("Destination does not exist");
-//                }
-//            }
-//        }
-//        if (destination == null && date != null) {
-//            return ordersRepository.findByDeliveryDate(date);
-//        }
-//        return ordersRepository.findAll();
-//    }
+
 }

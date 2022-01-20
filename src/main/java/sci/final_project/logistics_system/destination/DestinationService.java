@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,19 +35,20 @@ public class DestinationService {
             logger.info("Destination with id " + destinationId + " is " + destination.get().getName());
         }
         else {
-            logger.info("Destination Id does not exist.");
+            logger.info("Destination id does not exist.");
         }
         return destinationRepository.findById(destinationId);
 
     }
 
     public ResponseEntity<DestinationEntity> addDestinations(DestinationEntity destinationToAdd) {
-        if (destinationRepository.findByName(destinationToAdd.getName()).isEmpty()) {
+        if (destinationRepository.findByName(destinationToAdd.getName()).isEmpty() &&
+                destinationRepository.findAllById(Collections.singleton(destinationToAdd.getId())).isEmpty()) {
             destinationRepository.save(destinationToAdd);
             logger.info("Destination " + destinationToAdd.getName() + " added.");
             return new ResponseEntity<>(destinationToAdd, HttpStatus.CREATED);
-        } else {
-            logger.info("Destination name already exists.");
+        }else {
+            logger.info("Destination and id name already exists.");
             return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
         }
     }

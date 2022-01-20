@@ -1,4 +1,4 @@
-package sci.final_project.logistics_system.config;
+package sci.final_project.logistics_system;
 
 import org.springframework.boot.actuate.info.Info;
 import org.springframework.boot.actuate.info.InfoContributor;

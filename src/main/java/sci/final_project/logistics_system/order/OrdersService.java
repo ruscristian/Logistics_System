@@ -58,26 +58,30 @@ public class OrdersService {
         return globalData.getCurrentDate().isAfter(localDate);
     }
 
-    public ResponseEntity<OrdersEntity> cancelOrder(OrdersEntity payload) {
-        if (payload.getId() == null) {
-            logger.info("Provided ID does not exist.");
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-        if (ordersRepository.findById(payload.getId()).isPresent()) {
-            OrdersEntity orderToCancel = ordersRepository.getById(payload.getId());
-            if (orderToCancel.getStatus().equals(StatusEnum.DELIVERED)) {
-                logger.info("Order already delivered.");
-                return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
-            } else {
-                orderToCancel.setStatus(StatusEnum.CANCELLED);
-                orderToCancel.setLastUpdated(computeLastUpdated());
-                ordersRepository.save(orderToCancel);
-                logger.info("Order cancelled: " + orderToCancel) ;
-                return new ResponseEntity<>(orderToCancel, HttpStatus.ACCEPTED);
-            }
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    public ResponseEntity<OrdersEntity> cancelOrder(List<Long> idList) {
+
+       for(Long id: idList) {
+
+           if (id == null) {
+               logger.info("Provided ID does not exist.");
+//               return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+           }
+           if (ordersRepository.findById(id).isPresent()) {
+               OrdersEntity orderToCancel = ordersRepository.getById(id);
+               if (orderToCancel.getStatus().equals(StatusEnum.DELIVERED)) {
+                   logger.info("Order already delivered.");
+//                   return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
+               } else {
+                   orderToCancel.setStatus(StatusEnum.CANCELLED);
+                   orderToCancel.setLastUpdated(computeLastUpdated());
+                   ordersRepository.save(orderToCancel);
+                   logger.info("Order cancelled: " + orderToCancel);
+//                   return new ResponseEntity<>(orderToCancel, HttpStatus.ACCEPTED);
+               }
+           }
+       }
+//        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
 
     public List<OrdersEntity> findOrdersByCriteria(String destination, String date, GlobalData globalData) {

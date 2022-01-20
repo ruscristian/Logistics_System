@@ -9,6 +9,9 @@ import java.util.Optional;
 
 public interface DestinationRepository extends JpaRepository<DestinationEntity, Long> {
 
-    DestinationEntity findByName(String name);
+    DestinationEntity findDestinationByName(String name);
+    Optional<DestinationEntity> findById(Long id);
+    List<DestinationEntity> findByName(String name);
+
 
 }

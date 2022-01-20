@@ -87,7 +87,7 @@ public class OrdersService {
         }
 
         if (destination != null) {
-            DestinationEntity destinationToSearch = destinationRepository.findByName(destination);
+            DestinationEntity destinationToSearch = destinationRepository.findDestinationByName(destination);
             if (destinationToSearch != null) {
                 logger.info("Orders list for " + destination + " on " + date + " has been generated.");
                 return ordersRepository.findByDestinationIdAndDeliveryDate(destinationToSearch.getId(), date);

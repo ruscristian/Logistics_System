@@ -10,6 +10,7 @@ import sci.final_project.logistics_system.destination.DestinationEntity;
 import sci.final_project.logistics_system.destination.DestinationRepository;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -58,30 +59,37 @@ public class OrdersService {
         return globalData.getCurrentDate().isAfter(localDate);
     }
 
-    public ResponseEntity<OrdersEntity> cancelOrder(List<Long> idList) {
+    public ResponseEntity<String> cancelOrder(List<Long> idList) {
+        int nullIds = 0;
+        int succeeded = 0;
+        int alreadyDelivered = 0;
 
-       for(Long id: idList) {
+        for (Long id : idList) {
 
-           if (id == null) {
-               logger.info("Provided ID does not exist.");
-//               return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-           }
-           if (ordersRepository.findById(id).isPresent()) {
-               OrdersEntity orderToCancel = ordersRepository.getById(id);
-               if (orderToCancel.getStatus().equals(StatusEnum.DELIVERED)) {
-                   logger.info("Order already delivered.");
-//                   return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
-               } else {
-                   orderToCancel.setStatus(StatusEnum.CANCELLED);
-                   orderToCancel.setLastUpdated(computeLastUpdated());
-                   ordersRepository.save(orderToCancel);
-                   logger.info("Order cancelled: " + orderToCancel);
-//                   return new ResponseEntity<>(orderToCancel, HttpStatus.ACCEPTED);
-               }
-           }
-       }
-//        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        return new ResponseEntity<>(HttpStatus.ACCEPTED);
+            if (id != null) {
+                if (ordersRepository.findById(id).isPresent()) {
+                    OrdersEntity orderToCancel = ordersRepository.getById(id);
+                    if (orderToCancel.getStatus().equals(StatusEnum.DELIVERED)) {
+                        logger.info("Order already delivered.");
+                        alreadyDelivered++;
+                    } else {
+                        orderToCancel.setStatus(StatusEnum.CANCELLED);
+                        orderToCancel.setLastUpdated(computeLastUpdated());
+                        ordersRepository.save(orderToCancel);
+                        logger.info("Order cancelled: " + orderToCancel);
+                        succeeded++;
+                    }
+                } else {
+                    logger.info("Provided ID does not exist.");
+                    nullIds++;
+                }
+            }
+        }
+        if (succeeded != 0) {
+            return new ResponseEntity<String>(succeeded + " out of " + idList.size() + " orders cancelled", HttpStatus.ACCEPTED);
+        } else {
+            return new ResponseEntity<>("The provided orders are already delivered or the id is not valid.", HttpStatus.BAD_REQUEST);
+        }
     }
 
     public List<OrdersEntity> findOrdersByCriteria(String destination, String date, GlobalData globalData) {

@@ -38,7 +38,7 @@ public class OrderController {
     }
 
     @PutMapping("/cancel")
-    public ResponseEntity<OrdersEntity> cancelOrder(@RequestBody List<Long> id) throws IllegalArgumentException {
+    public ResponseEntity<String> cancelOrder(@RequestBody List<Long> id) throws IllegalArgumentException {
         return ordersService.cancelOrder(id);
     }
 

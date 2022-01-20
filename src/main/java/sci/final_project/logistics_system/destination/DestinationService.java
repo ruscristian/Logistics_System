@@ -43,7 +43,7 @@ public class DestinationService {
 
     public ResponseEntity<DestinationEntity> addDestinations(DestinationEntity destinationToAdd) {
         if (destinationRepository.findByName(destinationToAdd.getName()).isEmpty() &&
-                destinationRepository.findAllById(Collections.singleton(destinationToAdd.getId())).isEmpty()) {
+            destinationRepository.findAllById(Collections.singleton(destinationToAdd.getId())).isEmpty()) {
             destinationRepository.save(destinationToAdd);
             logger.info("Destination " + destinationToAdd.getName() + " added.");
             return new ResponseEntity<>(destinationToAdd, HttpStatus.CREATED);

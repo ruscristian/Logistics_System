@@ -3,7 +3,6 @@ package sci.final_project.logistics_system;
 import org.springframework.boot.actuate.info.Info;
 import org.springframework.boot.actuate.info.InfoContributor;
 import org.springframework.stereotype.Component;
-import sci.final_project.logistics_system.GlobalData;
 
 import java.util.HashMap;
 import java.util.Map;

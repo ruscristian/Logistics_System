@@ -6,9 +6,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import sci.final_project.logistics_system.GlobalData;
-import sci.final_project.logistics_system.order.OrdersEntity;
-
-import java.util.List;
 
 
 @RestController

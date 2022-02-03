@@ -10,7 +10,6 @@ import sci.final_project.logistics_system.destination.DestinationEntity;
 import sci.final_project.logistics_system.destination.DestinationRepository;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 

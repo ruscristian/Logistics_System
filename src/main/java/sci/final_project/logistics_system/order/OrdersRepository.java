@@ -12,7 +12,6 @@ import java.util.List;
 public interface OrdersRepository extends JpaRepository<OrdersEntity, Long> {
 
     List<OrdersEntity> findByDeliveryDate(String localDate);
-    List<OrdersEntity> findByDestinationId(Long destination);
     List<OrdersEntity> findByDestinationIdAndDeliveryDate(Long destination, String localDate);
 
 }

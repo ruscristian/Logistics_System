@@ -18,15 +18,14 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ShippingService {
 
 
-
     private final OrdersRepository ordersRepository;
     private final GlobalData globalData;
     private final CourierContainer courierContainer;
 
     private final Logger logger = LoggerFactory.getLogger(ShippingService.class);
 
-    public ShippingService( OrdersRepository ordersRepository, GlobalData globalData,
-                            CourierContainer courierContainer) {
+    public ShippingService(OrdersRepository ordersRepository, GlobalData globalData,
+                           CourierContainer courierContainer) {
 
         this.ordersRepository = ordersRepository;
         this.globalData = globalData;
@@ -43,17 +42,18 @@ public class ShippingService {
         List<String> currentDateDestinationList = Collections.synchronizedList(new ArrayList<>());
         Map<DestinationEntity, List<OrdersEntity>> ordersByDestination = new ConcurrentHashMap<>();
 
-        ordersRepository.findByDeliveryDate(globalData.getCurrentDate().format(globalData.getDateTimeFormatter())).forEach(ordersEntity -> {
-            ordersByDestination.computeIfAbsent(ordersEntity.getDestination(), destination -> new ArrayList<>());
+        ordersRepository.findByDeliveryDate(globalData.getCurrentDate().format(globalData.getDateTimeFormatter()))
+                        .forEach(ordersEntity -> {
+                    ordersByDestination.computeIfAbsent(ordersEntity.getDestination(), destination -> new ArrayList<>());
 
-            ordersByDestination.get(ordersEntity.getDestination()).add(ordersEntity);
-        });
+                    ordersByDestination.get(ordersEntity.getDestination()).add(ordersEntity);
+                });
 
         for (DestinationEntity destination : ordersByDestination.keySet()) {
             currentDateDestinationList.add((destination).getName());
         }
         logger.info("New day starting : " + globalData.getCurrentDate().format(globalData.getDateTimeFormatter()));
-        logger.info("Today we will be delivering to " + currentDateDestinationList);
+        logger.info("Today we will deliver in " + currentDateDestinationList);
 
         for (DestinationEntity destination : ordersByDestination.keySet()) {
             courierContainer.threadCourier(destination, ordersByDestination.get(destination));

@@ -12,7 +12,6 @@ import sci.final_project.logistics_system.destination.DestinationRepository;
 import java.time.LocalDate;
 import java.util.List;
 
-
 @Service
 public class OrdersService {
 
@@ -33,7 +32,7 @@ public class OrdersService {
             logger.info("Date is older than today.");
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } else {
-            payload.setStatus(StatusEnum.NEW);
+            payload.setStatus(OrderStatus.NEW);
             payload.setLastUpdated(computeLastUpdated());
             List<DestinationEntity> destinations = destination.findAll();
             for (DestinationEntity destination1 : destinations) {
@@ -68,11 +67,11 @@ public class OrdersService {
             if (id != null) {
                 if (ordersRepository.findById(id).isPresent()) {
                     OrdersEntity orderToCancel = ordersRepository.getById(id);
-                    if (orderToCancel.getStatus().equals(StatusEnum.DELIVERED)) {
+                    if (orderToCancel.getStatus().equals(OrderStatus.DELIVERED)) {
                         logger.info("Order already delivered.");
                         alreadyDelivered++;
                     } else {
-                        orderToCancel.setStatus(StatusEnum.CANCELLED);
+                        orderToCancel.setStatus(OrderStatus.CANCELLED);
                         orderToCancel.setLastUpdated(computeLastUpdated());
                         ordersRepository.save(orderToCancel);
                         logger.info("Order cancelled: " + orderToCancel);
@@ -113,6 +112,4 @@ public class OrdersService {
         }
 
     }
-
-
 }

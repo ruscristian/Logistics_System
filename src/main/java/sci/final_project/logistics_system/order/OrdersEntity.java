@@ -33,7 +33,7 @@ public class OrdersEntity {
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
-    private StatusEnum status = StatusEnum.NEW;
+    private OrderStatus status = OrderStatus.NEW;
 
     @Column(name = "last_updated")
     private String lastUpdated;

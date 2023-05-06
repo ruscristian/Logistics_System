@@ -12,12 +12,10 @@ import java.util.List;
 @RequestMapping("/orders")
 public class OrderController {
 
-
  private final OrdersService ordersService;
  private final OrdersRepository ordersRepository;
  private final DestinationRepository destinationRepository;
  private final GlobalData globalData;
-
 
     public OrderController(OrdersService ordersService, OrdersRepository ordersRepository, DestinationRepository destinationRepository, GlobalData globalData) {
         this.ordersService = ordersService;
@@ -25,7 +23,6 @@ public class OrderController {
         this.destinationRepository = destinationRepository;
         this.globalData = globalData;
     }
-
 
     @GetMapping("/get")
     public List<OrdersEntity> getOrders(){

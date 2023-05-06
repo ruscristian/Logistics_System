@@ -42,6 +42,4 @@ public class DestinationController {
     public ResponseEntity<DestinationEntity> deleteDestination(@PathVariable Long destinationId){
         return destinationService.deleteDestinationById(destinationId);
     }
-
-
 }

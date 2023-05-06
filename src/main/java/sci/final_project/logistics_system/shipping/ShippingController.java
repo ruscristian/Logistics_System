@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import sci.final_project.logistics_system.GlobalData;
 
-
 @RestController
 @RequestMapping("/shipping")
 public class ShippingController {
@@ -34,6 +33,4 @@ public class ShippingController {
     public void newDay(){
         shippingService.newDayMaker();
     }
-
-
 }

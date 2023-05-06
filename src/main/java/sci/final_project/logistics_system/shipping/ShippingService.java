@@ -11,10 +11,8 @@ import sci.final_project.logistics_system.order.OrdersRepository;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-
 @Service
 public class ShippingService {
-
 
     private final OrdersRepository ordersRepository;
     private final GlobalData globalData;
@@ -22,9 +20,7 @@ public class ShippingService {
 
     private final Logger logger = LoggerFactory.getLogger(ShippingService.class);
 
-    public ShippingService(OrdersRepository ordersRepository, GlobalData globalData,
-                           CourierContainer courierContainer) {
-
+    public ShippingService(OrdersRepository ordersRepository, GlobalData globalData, CourierContainer courierContainer) {
         this.ordersRepository = ordersRepository;
         this.globalData = globalData;
         this.courierContainer = courierContainer;
@@ -43,7 +39,6 @@ public class ShippingService {
         ordersRepository.findByDeliveryDate(globalData.getCurrentDate().format(globalData.getDateTimeFormatter()))
                         .forEach(ordersEntity -> {
                     ordersByDestination.computeIfAbsent(ordersEntity.getDestination(), destination -> new ArrayList<>());
-
                     ordersByDestination.get(ordersEntity.getDestination()).add(ordersEntity);
                 });
 
@@ -54,10 +49,7 @@ public class ShippingService {
         logger.info("Today we will deliver in " + currentDateDestinationList);
 
         for (DestinationEntity destination : ordersByDestination.keySet()) {
-            courierContainer.threadCourier(destination, ordersByDestination.get(destination));
+            courierContainer.deliverTheOrdersOnDestination(destination, ordersByDestination.get(destination));
         }
     }
 }
-
-
-

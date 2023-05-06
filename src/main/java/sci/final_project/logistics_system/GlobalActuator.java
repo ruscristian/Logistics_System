@@ -23,8 +23,6 @@ public class GlobalActuator implements InfoContributor {
         stats.put("date", globalData.getCurrentDate().format(globalData.getDateTimeFormatter()));
         stats.put("profit", String.valueOf(globalData.getProfit()));
 
-
         builder.withDetail("actuator", stats);
         }
-
 }

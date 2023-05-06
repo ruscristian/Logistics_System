@@ -8,16 +8,14 @@ import sci.final_project.logistics_system.GlobalData;
 import sci.final_project.logistics_system.destination.DestinationEntity;
 import sci.final_project.logistics_system.order.OrdersEntity;
 import sci.final_project.logistics_system.order.OrdersRepository;
-import sci.final_project.logistics_system.order.StatusEnum;
+import sci.final_project.logistics_system.order.OrderStatus;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-
 @Component
 public class CourierContainer {
-
 
     private final Logger logger = LoggerFactory.getLogger(CourierContainer.class);
     private final GlobalData globalData;
@@ -28,9 +26,8 @@ public class CourierContainer {
         this.ordersRepository = ordersRepository;
     }
 
-
     @Async("taskExecutor")
-    public void threadCourier(DestinationEntity destination, List<OrdersEntity> orders) {
+    public void deliverTheOrdersOnDestination(DestinationEntity destination, List<OrdersEntity> orders) {
         logger.info("STARTING deliveries for " + destination.getName() + " on " +
                 Thread.currentThread().getName() + " for " + destination.getDistance() + "km");
 
@@ -38,10 +35,9 @@ public class CourierContainer {
         orders.forEach(ordersEntity -> ordersIdList.add(ordersEntity.getId()));
 
         List<OrdersEntity> refreshedOrders1 = ordersRepository.findAllById(ordersIdList);
-
         for (OrdersEntity orderStatus : refreshedOrders1) {
-            if (orderStatus.getStatus().equals(StatusEnum.NEW)) {
-                orderStatus.setStatus(StatusEnum.DELIVERING);
+            if (orderStatus.getStatus().equals(OrderStatus.NEW)) {
+                orderStatus.setStatus(OrderStatus.DELIVERING);
                 orderStatus.setLastUpdated(LocalDate.now().format(globalData.getDateTimeFormatter()));
                 ordersRepository.save(orderStatus);
             }
@@ -54,17 +50,14 @@ public class CourierContainer {
             e.printStackTrace();
         }
 
-
         List<OrdersEntity> refreshedOrders = ordersRepository.findAllById(ordersIdList);
-
         for (OrdersEntity orderStatus : refreshedOrders) {
-
-            if (orderStatus.getStatus().equals(StatusEnum.CANCELLED) ||
-                    orderStatus.getStatus().equals(StatusEnum.DELIVERED) ||
-                    orderStatus.getStatus().equals(StatusEnum.NEW)) {
+            if (orderStatus.getStatus().equals(OrderStatus.CANCELLED) ||
+                    orderStatus.getStatus().equals(OrderStatus.DELIVERED) ||
+                    orderStatus.getStatus().equals(OrderStatus.NEW)) {
                 logger.info("The order has been canceled or has been delivered or is new");
             } else {
-                orderStatus.setStatus(StatusEnum.DELIVERED);
+                orderStatus.setStatus(OrderStatus.DELIVERED);
                 orderStatus.setLastUpdated(LocalDate.now().format(globalData.getDateTimeFormatter()));
                 globalData.increaseProfit(destination.getDistance());
             }
@@ -72,7 +65,5 @@ public class CourierContainer {
         ordersRepository.saveAll(refreshedOrders);
         logger.info("DELIVERED in " + destination.getName() + " on " +
                 Thread.currentThread().getName());
-
     }
-
 }
